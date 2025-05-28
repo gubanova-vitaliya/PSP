@@ -1,0 +1,22 @@
+{
+  "name": "psp",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gubanova-vitaliya/PSP.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gubanova-vitaliya/PSP/issues"
+  },
+  "homepage": "https://github.com/gubanova-vitaliya/PSP#readme",
+  "description": "",
+  "dependencies": {
+    "bootstrap": "^5.3.6"
+  }
+}

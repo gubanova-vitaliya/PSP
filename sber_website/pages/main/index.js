@@ -2,6 +2,7 @@ import { ajax } from "../../modules/ajax.js";
 import { stockUrls } from "../../modules/stockUrls.js";
 import { ProductCardComponent } from '../../components/product-card/index.js';
 import { DetailsPage } from '../details/index.js';
+import {EditPage} from "../edit-page/index.js"
 
 export class MainPage {
     constructor() {
@@ -12,41 +13,36 @@ export class MainPage {
     }
 
     async getData() {
-    try {
-        const data = await ajax.get(stockUrls.getStocks());
-        this.data = data || [];
-        this.nextId = this.data.length > 0 
-            ? Math.max(...this.data.map(item => item.id)) + 1 
-            : 1;
-        return this.data;
-    } catch (error) {
-        console.error('Ошибка загрузки:', error);
-        this.data = [];
-        return this.data;
+        try {
+            const data = await ajax.get(stockUrls.getStocks());
+            this.data = data || [];
+            this.nextId = this.data.length > 0 
+                ? Math.max(...this.data.map(item => item.id)) + 1 
+                : 1;
+            return this.data;
+        } catch (error) {
+            console.error('Ошибка загрузки:', error);
+            this.data = [];
+            return this.data;
+        }
     }
-}
 
     async render() {
         this.root.innerHTML = `
-            <div class="controls">
-                <button id="add-card-btn">Добавить карточку</button>
+            <div class="d-flex justify-content-end mb-3">
+                <button id="add-card-btn" class="btn btn-primary">Добавить карточку</button>
             </div>
-            <div id="main-page"></div>
+            <div id="main-page" class="d-flex flex-wrap justify-content-center"></div>
         `;
         
-        try {
-            await this.getData();
-            this.renderData(this.data);
-        } catch (error) {
-            console.error('Ошибка загрузки:', error);
-            this.root.innerHTML += '<p class="error">Ошибка загрузки данных</p>';
-        }
+        this.pageRoot = document.getElementById('main-page');
+        await this.getData();
+        this.renderData(this.data);
         
         document.getElementById('add-card-btn').addEventListener('click', () => {
             this.addNewCard();
         });
     }
-
 
     renderData(items) {
         if (!items || !Array.isArray(items)) return;
@@ -73,8 +69,33 @@ export class MainPage {
 
     showDetails(data) {
         this.root.innerHTML = '';
-        const detailsPage = new DetailsPage(data, () => this.render());
+        const detailsPage = new DetailsPage(
+            data,
+            () => this.render(), // backCallback
+            (data) => this.showEditPage(data) // editCallback
+        );
         detailsPage.render();
+    }
+
+    showEditPage(data) {
+        this.root.innerHTML = '';
+        const editPage = new EditPage(
+            data,
+            (updatedData) => this.saveEditedCard(updatedData), // saveCallback
+            () => this.showDetails(data) // backCallback (возврат к деталям)
+        );
+        editPage.render();
+    }
+
+    saveEditedCard(updatedData) {
+        // Обновляем данные в массиве
+        const index = this.data.findIndex(item => item.id === updatedData.id);
+        if (index !== -1) {
+            this.data[index] = { ...this.data[index], ...updatedData };
+        }
+        
+        // Возвращаемся к просмотру обновленных деталей
+        this.showDetails(this.data[index]);
     }
 
     addNewCard() {
@@ -89,22 +110,5 @@ export class MainPage {
         
         this.data.push(newCard);
         this.renderData(this.data);
-    }
-
-    async render() {
-        this.root.innerHTML = `
-            <div class="d-flex justify-content-end mb-3">
-                <button id="add-card-btn" class="btn btn-primary">Добавить карточку</button>
-            </div>
-            <div id="main-page" class="d-flex flex-wrap justify-content-center"></div>
-        `;
-        
-        this.pageRoot = document.getElementById('main-page');
-        await this.getData();
-        this.renderData(this.data);
-        
-        document.getElementById('add-card-btn').addEventListener('click', () => {
-            this.addNewCard();
-        });
     }
 }

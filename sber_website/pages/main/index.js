@@ -1,110 +1,181 @@
-import { ajax } from "../../modules/ajax.js";
-import { stockUrls } from "../../modules/stockUrls.js";
-import { ProductCardComponent } from '../../components/product-card/index.js';
-import { DetailsPage } from '../details/index.js';
+import { SberProductCardComponent } from '../../components/sber-product-card/index.js';
+import { SberProductDetailsPage } from '../sber-card-details/index.js';
+import { SberCardEditPage } from '../sber-card-edit/index.js';
+import { SberSearchResultsPage } from '../sber-search-results/index.js';
 
-export class MainPage {
+export class SberMainPage {
     constructor() {
         this.root = document.getElementById('app');
-        this.data = [];
-        this.nextId = 1;
-        this.pageRoot = null;
+        this.bankProducts = this.getBankProductsData();
+        this.nextProductId = this.bankProducts.length + 1;
     }
 
-    async getData() {
-    try {
-        const data = await ajax.get(stockUrls.getStocks());
-        this.data = data || [];
-        this.nextId = this.data.length > 0 
-            ? Math.max(...this.data.map(item => item.id)) + 1 
-            : 1;
-        return this.data;
-    } catch (error) {
-        console.error('Ошибка загрузки:', error);
-        this.data = [];
-        return this.data;
-    }
-}
-
-    async render() {
-        this.root.innerHTML = `
-            <div class="controls">
-                <button id="add-card-btn">Добавить карточку</button>
-            </div>
-            <div id="main-page"></div>
-        `;
-        
-        try {
-            await this.getData();
-            this.renderData(this.data);
-        } catch (error) {
-            console.error('Ошибка загрузки:', error);
-            this.root.innerHTML += '<p class="error">Ошибка загрузки данных</p>';
-        }
-        
-        document.getElementById('add-card-btn').addEventListener('click', () => {
-            this.addNewCard();
-        });
-    }
-
-
-    renderData(items) {
-        if (!items || !Array.isArray(items)) return;
-        
-        const pageRoot = document.getElementById('main-page');
-        if (!pageRoot) return;
-        
-        pageRoot.innerHTML = '';
-        
-        items.forEach((item) => {
-            const productCard = new ProductCardComponent(
-                pageRoot,
-                (id) => this.deleteCard(id),
-                (data) => this.showDetails(data)
-            );
-            productCard.render(item);
-        });
+    getBankProductsData() {
+        return [
+            {
+                id: 1,
+                src: "https://cdn-icons-png.flaticon.com/512/196/196578.png",
+                title: "СберПрайм",
+                text: "Подписка на лучшие условия",
+                details: "СберПрайм — это подписка, которая дает вам особые условия по кредитам, вкладам и другим финансовым продуктам."
+            },
+            {
+                id: 2,
+                src: "https://cdn-icons-png.flaticon.com/512/3132/3132693.png",
+                title: "Кэшбэк до 30%",
+                text: "Вернем деньги за покупки у партнеров",
+                details: "Получайте кэшбэк до 30% при оплате картой Сбербанка у наших партнеров."
+            },
+            {
+                id: 3,
+                src: "https://cdn-icons-png.flaticon.com/512/2489/2489756.png",
+                title: "Ипотека 5%",
+                text: "Льготная ипотека для семей с детьми",
+                details: "Специальная ипотечная программа для семей с детьми по ставке от 5% годовых."
+            },
+            {
+                id: 4,
+                src: "https://cdn-icons-png.flaticon.com/512/2721/2721614.png",
+                title: "Инвестиции",
+                text: "Начните инвестировать от 1000 рублей",
+                details: "Платформа для инвестиций с минимальным порогом входа и обучающими материалами."
+            },
+            {
+                id: 5,
+                src: "https://cdn-icons-png.flaticon.com/512/2583/2583344.png",
+                title: "Страхование",
+                text: "Защита для вас и вашей семьи",
+                details: "Различные программы страхования жизни, здоровья и имущества."
+            },
+            {
+                id: 6,
+                src: "https://cdn-icons-png.flaticon.com/512/2553/2553629.png",
+                title: "Бизнес онлайн",
+                text: "Все для предпринимателей",
+                details: "Комплексные решения для бизнеса: расчётный счёт, эквайринг, кредиты."
+            }
+        ];
     }
 
-    deleteCard(id) {
-        this.data = this.data.filter(item => item.id !== id);
-        this.renderData(this.data);
+    removeBankProduct(productId) {
+        this.bankProducts = this.bankProducts.filter(item => item.id !== productId);
+        this.renderBankProducts();
     }
 
-    showDetails(data) {
+    showProductDetails(productData) {
         this.root.innerHTML = '';
-        const detailsPage = new DetailsPage(data, () => this.render());
-        detailsPage.render();
+        const detailsPage = new SberProductDetailsPage(
+            productData,
+            () => this.renderSberMain(),
+            (product) => this.showEditProduct(product)
+        );
+        detailsPage.renderSberProductDetails();
     }
 
-    addNewCard() {
-        if (this.data.length === 0) return;
+    showEditProduct(productData) {
+        this.root.innerHTML = '';
+        const editPage = new SberCardEditPage(
+            productData,
+            (updatedProduct) => {
+                this.updateProduct(updatedProduct);
+                this.showProductDetails(updatedProduct);
+            },
+            () => this.showProductDetails(productData)
+        );
+        editPage.renderSberCardEdit();
+    }
+
+    updateProduct(updatedProduct) {
+        const index = this.bankProducts.findIndex(p => p.id === updatedProduct.id);
+        if (index !== -1) {
+            this.bankProducts[index] = updatedProduct;
+        }
+    }
+
+    addNewBankProduct() {
+        if (this.bankProducts.length === 0) return;
         
-        const lastCard = this.data[this.data.length - 1];
-        const newCard = {
-            ...lastCard,
-            id: this.nextId++,
-            title: `${lastCard.title} (копия)`
+        const lastProduct = this.bankProducts[this.bankProducts.length - 1];
+        const newProduct = {
+            ...lastProduct,
+            id: this.nextProductId++,
+            title: `${lastProduct.title} (Дополнительный пакет)`
         };
         
-        this.data.push(newCard);
-        this.renderData(this.data);
+        this.bankProducts.push(newProduct);
+        this.renderBankProducts();
     }
 
-    async render() {
+    searchProduct(searchTerm) {
+        const results = this.bankProducts.filter(product => 
+            product.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+            product.id.toString() === searchTerm
+        );
+        
+        this.root.innerHTML = '';
+        const searchPage = new SberSearchResultsPage(
+            results,
+            () => this.renderSberMain(),
+            (product) => this.showProductDetails(product)
+        );
+        searchPage.renderSearchResults();
+    }
+
+    renderBankProducts() {
+        const productsContainer = document.getElementById('sber-products-container');
+        productsContainer.innerHTML = '';
+        
+        this.bankProducts.forEach((product) => {
+            const productCard = new SberProductCardComponent(
+                productsContainer, 
+                (id) => this.removeBankProduct(id),
+                (data) => this.showProductDetails(data),
+                (data) => this.showEditProduct(data)
+            );
+            productCard.renderSberProduct(product);
+        });
+    }
+
+    renderSberMain() {
         this.root.innerHTML = `
-            <div class="d-flex justify-content-end mb-3">
-                <button id="add-card-btn" class="btn btn-primary">Добавить карточку</button>
+            <div class="sber-main-container">
+                <div class="sber-search-section">
+                    <form id="sber-search-form" class="sber-search-form">
+                        <div class="input-group mb-4">
+                            <input type="text" id="sber-search-input" class="form-control" 
+                                   placeholder="Поиск по названию или ID">
+                            <button class="btn btn-sber-primary" type="submit">
+                                <i class="bi bi-search"></i> Найти
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="d-flex justify-content-between mb-3">
+                    <h2>Банковские продукты</h2>
+                    <button id="add-product-btn" class="btn btn-sber-primary">
+                        <i class="bi bi-plus-circle"></i> Добавить продукт
+                    </button>
+                </div>
+                
+                <div id="sber-products-container" class="row"></div>
             </div>
-            <div id="main-page" class="d-flex flex-wrap justify-content-center"></div>
         `;
         
-        this.pageRoot = document.getElementById('main-page');
-        await this.getData();
-        this.renderData(this.data);
-        
-        document.getElementById('add-card-btn').addEventListener('click', () => {
-            this.addNewCard();
+        // Добавляем обработчик для формы поиска
+        document.getElementById('sber-search-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const searchInput = document.getElementById('sber-search-input');
+            const searchTerm = searchInput.value.trim();
+            if (searchTerm) {
+                this.searchProduct(searchTerm);
+            }
         });
+        
+        document.getElementById('add-product-btn').addEventListener('click', () => {
+            this.addNewBankProduct();
+        });
+        
+        this.renderBankProducts();
     }
 }

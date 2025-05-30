@@ -1,25 +1,22 @@
-export class SberProductDetailsPage {
-    constructor(productData, backToProductsCallback) {
-        this.productData = productData;
-        this.backToProductsCallback = backToProductsCallback;
+export class SberCardsDetailsPage {
+    constructor(data, backCallback) {
+        this.data = data;
+        this.backCallback = backCallback;
         this.root = document.getElementById('app');
+        
     }
 
-    renderSberProductDetails() {
+    renderSberCard() {
         this.root.innerHTML = `
-            <div class="sber-container mt-5">
+            <div class="container mt-5">
                 <div class="row justify-content-center">
                     <div class="col-md-8">
-                        <div class="sber-detail-card">
-                            <img src="${this.productData.src}" 
-                                 class="sber-detail-img" 
-                                 alt="${this.productData.title}">
-                            <div class="sber-detail-body">
-                                <h2 class="sber-detail-title">${this.productData.title}</h2>
-                                <p class="sber-detail-text">${this.productData.details}</p>
-                                <button id="sber-back-btn" class="btn sber-btn sber-btn-secondary">
-                                    Вернуться к продуктам
-                                </button>
+                        <div class="card">
+                            <img src="${this.data.src}" class="card-img-top" alt="${this.data.title}">
+                            <div class="card-body">
+                                <h2 class="card-title">${this.data.title}</h2>
+                                <p class="card-text">${this.data.details}</p>
+                                <button id="back-btn" class="btn btn-primary">Назад</button>
                             </div>
                         </div>
                     </div>
@@ -27,8 +24,8 @@ export class SberProductDetailsPage {
             </div>
         `;
         
-        document.getElementById('sber-back-btn').addEventListener('click', () => {
-            this.backToProductsCallback();
+        document.getElementById('back-btn').addEventListener('click', () => {
+            this.backCallback();
         });
     }
 }

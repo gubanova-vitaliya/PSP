@@ -3,10 +3,8 @@ export class SberButtonComponent {
         this.parent = parent;
     }
 
-    renderSberButton() {
-        this.parent.insertAdjacentHTML(
-            'beforeend', 
-            '<button type="button" class="btn sber-btn sber-btn-primary">СберБанк Онлайн</button>'
-        );
+    renderSberCard() {
+        this.parent.insertAdjacentHTML('beforeend', '<button type="button" class="btn btn-primary">Hello world 4!</button>');
     }
+
 }

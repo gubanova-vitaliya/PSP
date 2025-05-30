@@ -1,4 +1,5 @@
-import { SberMainPage } from './pages/main/index.js';
+import { Sber_Website_MainPage } from './pages/main/index.js';
 
-const sberApp = new SberMainPage();
-sberApp.renderSberMain();
+document.addEventListener('DOMContentLoaded', () => {
+    new Sber_Website_MainPage();
+});

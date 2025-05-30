@@ -1,5 +1,4 @@
-export class Stock {
-  id: number;
+export class CreateSbercardDto {
   src: string;
   title: string;
   text: string;

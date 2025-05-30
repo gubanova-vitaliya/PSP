@@ -1,14 +1,14 @@
-import { ProductCardComponent } from '../../components/product-card/index.js';
-import { DetailsPage } from '../details/index.js';
+import { SberProductCardComponent } from '../../components/sber-product-card/index.js';
+import { SberProductDetailsPage } from '../sber-card-details/index.js';
 
-export class MainPage {
+export class SberMainPage {
     constructor() {
         this.root = document.getElementById('app');
-        this.data = this.getData();
-        this.nextId = this.data.length + 1;
+        this.bankProducts = this.getBankProductsData();
+        this.nextProductId = this.bankProducts.length + 1;
     }
 
-    getData() {
+    getBankProductsData() {
         return [
             {
                 id: 1,
@@ -55,59 +55,59 @@ export class MainPage {
         ];
     }
 
-    deleteCard(id) {
-        this.data = this.data.filter(item => item.id !== id);
-        this.renderCards();
+    removeBankProduct(productId) {
+        this.bankProducts = this.bankProducts.filter(item => item.id !== productId);
+        this.renderBankProducts();
     }
 
-    showDetails(data) {
+    showProductDetails(productData) {
         this.root.innerHTML = '';
-        const detailsPage = new DetailsPage(data, () => this.render());
-        detailsPage.render();
+        const detailsPage = new SberProductDetailsPage(productData, () => this.renderSberMain());
+        detailsPage.renderSberProductDetails();
     }
 
-    addNewCard() {
-        if (this.data.length === 0) return;
+    addNewBankProduct() {
+        if (this.bankProducts.length === 0) return;
         
-        const lastCard = this.data[this.data.length - 1];
-        const newCard = {
-            ...lastCard,
-            id: this.nextId++,
-            title: `${lastCard.title} (копия)`
+        const lastProduct = this.bankProducts[this.bankProducts.length - 1];
+        const newProduct = {
+            ...lastProduct,
+            id: this.nextProductId++,
+            title: `${lastProduct.title} (Дополнительный пакет)`
         };
         
-        this.data.push(newCard);
-        this.renderCards();
+        this.bankProducts.push(newProduct);
+        this.renderBankProducts();
     }
 
-    renderCards() {
-        const pageRoot = document.getElementById('main-page');
-        pageRoot.innerHTML = '';
+    renderBankProducts() {
+        const productsContainer = document.getElementById('sber-products-container');
+        productsContainer.innerHTML = '';
         
-        this.data.forEach((item) => {
-            const productCard = new ProductCardComponent(
-                pageRoot, 
-                (id) => this.deleteCard(id),
-                (data) => this.showDetails(data)
+        this.bankProducts.forEach((product) => {
+            const productCard = new SberProductCardComponent(
+                productsContainer, 
+                (id) => this.removeBankProduct(id),
+                (data) => this.showProductDetails(data)
             );
-            productCard.render(item);
+            productCard.renderSberProduct(product);
         });
     }
 
-    render() {
+    renderSberMain() {
         this.root.innerHTML = `
             <div class="d-flex justify-content-end mb-3">
-                <button id="add-card-btn" class="btn btn-primary">Добавить карточку</button>
+                <button id="add-product-btn" class="btn sber-btn sber-btn-primary">
+                    + Добавить банковский продукт
+                </button>
             </div>
-            <div id="main-page" class="d-flex flex-wrap justify-content-center"></div>
+            <div id="sber-products-container" class="d-flex flex-wrap justify-content-center"></div>
         `;
         
-        this.renderCards();
+        this.renderBankProducts();
         
-        document.getElementById('add-card-btn').addEventListener('click', () => {
-            this.addNewCard();
+        document.getElementById('add-product-btn').addEventListener('click', () => {
+            this.addNewBankProduct();
         });
     }
-
-    
 }

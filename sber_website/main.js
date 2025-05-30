@@ -1,4 +1,4 @@
-import { MainPage } from './pages/main/index.js';
+import { SberMainPage } from './pages/main/index.js';
 
-const mainPage = new MainPage();
-mainPage.render();
+const sberApp = new SberMainPage();
+sberApp.renderSberMain();

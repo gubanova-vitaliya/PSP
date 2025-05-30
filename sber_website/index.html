@@ -9,6 +9,49 @@
         body {
             background-color: #f5f5f5;
         }
+
+
+.sber-btn {
+    font-weight: 600;
+}
+.sber-btn-primary {
+    background-color: #1a9f29;
+    border-color: #1a9f29;
+}
+.sber-card {
+    width: 300px !important; /* Фиксированная ширина */
+    margin: 15px;
+    display: inline-block; /* Для правильного расположения */
+    vertical-align: top; /* Выравнивание по верху */
+}
+
+.sber-card-img-top {
+    height: 160px;
+    width: 100%;
+    object-fit: contain; /* Сохраняет пропорции */
+    background-color: #f1f9f1; /* Фон если изображение не загрузилось */
+    padding: 15px;
+}
+.sber-card-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* Выравнивание по вертикали */
+  margin-top: 15px;
+  padding: 0 10px;
+}
+
+.sber-details-btn, 
+.sber-close-btn {
+  width: 48%; /* Чтобы кнопки были одинаковой ширины */
+  padding: 8px 5px;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* Фикс для Bootstrap */
+.btn {
+  white-space: nowrap; /* Текст в одну строку */
+}
         .sber-header {
             background-color: #1a9f29;
             color: white;

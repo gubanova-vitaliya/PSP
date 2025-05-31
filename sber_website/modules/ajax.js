@@ -79,14 +79,9 @@ class Ajax {
     _handleResponse(xhr, callback) {
         try {
             const data = xhr.responseText ? JSON.parse(xhr.responseText) : null;
-            if (xhr.status >= 200 && xhr.status < 300) {
-                callback(data, xhr.status);
-            } else {
-                console.error('Request failed:', xhr.statusText);
-                callback(null, xhr.status);
-            }
+            callback(data, xhr.status);
         } catch (e) {
-            console.error('JSON parsing error:', e);
+            console.error('Ошибка парсинга JSON:', e);
             callback(null, xhr.status);
         }
     }

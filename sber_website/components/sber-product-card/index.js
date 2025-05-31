@@ -46,7 +46,7 @@ export class SberProductCardComponent {
         
         cardElement.querySelector('.sber-details-btn').addEventListener('click', (e) => {
             e.preventDefault();
-            this.showDetailsCallback(productData);
+            this.showDetailsCallback(productData.id);
         });
     }
 }

@@ -74,31 +74,34 @@ render() {
         this.renderBankProducts();
     }
 
-    showProductDetails(productData) {
+    showProductDetails(productId) {
         this.root.innerHTML = '';
         const detailsPage = new SberProductDetailsPage(
-            productData,
+            productId,
             () => this.renderSberMain(),
-            (product) => this.showEditProduct(product)
+            (data) => this.showEditProduct(data.id)
         );
         detailsPage.renderSberProductDetails();
     }
-    showEditProduct(productData) {
+    showEditProduct(productId) {
+        const product = this.bankProducts.find(p => p.id === productId);
+        if (!product) return;
+
         this.root.innerHTML = '';
         const editPage = new SberCardEditPage(
-            productData,
-            (updatedProduct) => {
-                this.updateProduct(updatedProduct);
-                this.showProductDetails(updatedProduct);
+            product,
+            (updatedCard) => {
+                this.updateProduct(updatedCard);
+                this.renderSberMain();
             },
-            () => this.showProductDetails(productData)
+            () => this.renderSberMain()
         );
         editPage.renderSberCardEdit();
     }
-    updateProduct(updatedProduct) {
-        const index = this.bankProducts.findIndex(p => p.id === updatedProduct.id);
+    updateProduct(updatedCard) {
+        const index = this.bankProducts.findIndex(p => p.id === updatedCard.id);
         if (index !== -1) {
-            this.bankProducts[index] = updatedProduct;
+            this.bankProducts[index] = updatedCard;
         }
     }
 
@@ -124,7 +127,8 @@ render() {
             const productCard = new SberProductCardComponent(
                 productsContainer, 
                 (id) => this.removeBankProduct(id),
-                (data) => this.showProductDetails(data)
+                (id) => this.showProductDetails(id),
+                (id) => this.showEditProduct(id)
             );
             productCard.renderSberProduct(product);
         });
@@ -180,57 +184,8 @@ render() {
         const searchPage = new SberSearchResultsPage(
             results,
             () => this.renderSberMain(),
-            (product) => this.showProductDetails(product)
+            (id) => this.showProductDetails(id)
         );
         searchPage.renderSearchResults();
     }
-
-
-showProductDetails(productId) {
-    const product = this.bankProducts.find(p => p.id === productId);
-    if (!product) return;
-
-    this.root.innerHTML = '';
-    const detailsPage = new SberProductDetailsPage(product, () => this.renderSberMain());
-    detailsPage.renderSberProductDetails();
-}
-
-showEditProduct(productId) {
-    const product = this.bankProducts.find(p => p.id === productId);
-    if (!product) return;
-
-    this.root.innerHTML = '';
-    const editPage = new SberCardEditPage(
-        product,
-        (updatedCard) => {
-            this.updateProduct(updatedCard);
-            this.renderSberMain();
-        },
-        () => this.renderSberMain()
-    );
-    editPage.renderSberCardEdit();
-}
-
-updateProduct(updatedCard) {
-    const index = this.bankProducts.findIndex(p => p.id === updatedCard.id);
-    if (index !== -1) {
-        this.bankProducts[index] = updatedCard;
-    }
-}
-
-
-renderBankProducts() {
-    const productsContainer = document.getElementById('sber-products-container');
-    productsContainer.innerHTML = '';
-    
-    this.bankProducts.forEach((product) => {
-        const productCard = new SberProductCardComponent(
-            productsContainer, 
-            (id) => this.removeBankProduct(id),
-            (data) => this.showProductDetails(data.id),
-            (data) => this.showEditProduct(data.id) 
-        );
-        productCard.renderSberProduct(product);
-    });
-}
 }

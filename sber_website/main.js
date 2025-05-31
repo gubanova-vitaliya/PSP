@@ -2,6 +2,22 @@ import { SberMainPage } from './pages/main/index.js';
 
 class SberApp {
     constructor() {
+        this.checkCORSExtension();
+    }
+
+    checkCORSExtension() {
+        const testUrl = 'http://localhost:3000/test-cors';
+        
+        fetch(testUrl, { method: 'OPTIONS' })
+            .then(response => {
+                this.initializeApp();
+            })
+            .catch(error => {
+                document.body.innerHTML = '';
+            });
+    }
+
+    initializeApp() {
         try {
             const appElement = document.getElementById('app');
             if (!appElement) throw new Error('App container not found');

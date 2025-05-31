@@ -144,6 +144,14 @@ export class SberMainPage {
             </div>
         `;
         
+        document.getElementById('sber-search-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const searchTerm = document.getElementById('sber-search-input').value.trim();
+            if (searchTerm) {
+                this.searchProduct(searchTerm);
+            }
+        });
+        
         this.renderBankProducts();
         
         document.getElementById('add-product-btn').addEventListener('click', () => {

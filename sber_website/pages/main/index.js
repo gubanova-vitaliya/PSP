@@ -71,7 +71,6 @@ export class SberMainPage {
         );
         detailsPage.renderSberProductDetails();
     }
-
     showEditProduct(productData) {
         this.root.innerHTML = '';
         const editPage = new SberCardEditPage(
@@ -84,7 +83,6 @@ export class SberMainPage {
         );
         editPage.renderSberCardEdit();
     }
-
     updateProduct(updatedProduct) {
         const index = this.bankProducts.findIndex(p => p.id === updatedProduct.id);
         if (index !== -1) {
@@ -106,21 +104,6 @@ export class SberMainPage {
         this.renderBankProducts();
     }
 
-    searchProduct(searchTerm) {
-        const results = this.bankProducts.filter(product => 
-            product.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-            product.id.toString() === searchTerm
-        );
-        
-        this.root.innerHTML = '';
-        const searchPage = new SberSearchResultsPage(
-            results,
-            () => this.renderSberMain(),
-            (product) => this.showProductDetails(product)
-        );
-        searchPage.renderSearchResults();
-    }
-
     renderBankProducts() {
         const productsContainer = document.getElementById('sber-products-container');
         productsContainer.innerHTML = '';
@@ -129,8 +112,7 @@ export class SberMainPage {
             const productCard = new SberProductCardComponent(
                 productsContainer, 
                 (id) => this.removeBankProduct(id),
-                (data) => this.showProductDetails(data),
-                (data) => this.showEditProduct(data)
+                (data) => this.showProductDetails(data)
             );
             productCard.renderSberProduct(product);
         });
@@ -162,20 +144,73 @@ export class SberMainPage {
             </div>
         `;
         
-        // Добавляем обработчик для формы поиска
-        document.getElementById('sber-search-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const searchInput = document.getElementById('sber-search-input');
-            const searchTerm = searchInput.value.trim();
-            if (searchTerm) {
-                this.searchProduct(searchTerm);
-            }
-        });
+        this.renderBankProducts();
         
         document.getElementById('add-product-btn').addEventListener('click', () => {
             this.addNewBankProduct();
         });
-        
-        this.renderBankProducts();
     }
+    searchProduct(searchTerm) {
+        const results = this.bankProducts.filter(product => 
+            product.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+            product.id.toString() === searchTerm
+        );
+        
+        this.root.innerHTML = '';
+        const searchPage = new SberSearchResultsPage(
+            results,
+            () => this.renderSberMain(),
+            (product) => this.showProductDetails(product)
+        );
+        searchPage.renderSearchResults();
+    }
+
+
+showProductDetails(productId) {
+    const product = this.bankProducts.find(p => p.id === productId);
+    if (!product) return;
+
+    this.root.innerHTML = '';
+    const detailsPage = new SberProductDetailsPage(product, () => this.renderSberMain());
+    detailsPage.renderSberProductDetails();
+}
+
+showEditProduct(productId) {
+    const product = this.bankProducts.find(p => p.id === productId);
+    if (!product) return;
+
+    this.root.innerHTML = '';
+    const editPage = new SberCardEditPage(
+        product,
+        (updatedCard) => {
+            this.updateProduct(updatedCard);
+            this.renderSberMain();
+        },
+        () => this.renderSberMain()
+    );
+    editPage.renderSberCardEdit();
+}
+
+updateProduct(updatedCard) {
+    const index = this.bankProducts.findIndex(p => p.id === updatedCard.id);
+    if (index !== -1) {
+        this.bankProducts[index] = updatedCard;
+    }
+}
+
+
+renderBankProducts() {
+    const productsContainer = document.getElementById('sber-products-container');
+    productsContainer.innerHTML = '';
+    
+    this.bankProducts.forEach((product) => {
+        const productCard = new SberProductCardComponent(
+            productsContainer, 
+            (id) => this.removeBankProduct(id),
+            (data) => this.showProductDetails(data.id),
+            (data) => this.showEditProduct(data.id) 
+        );
+        productCard.renderSberProduct(product);
+    });
+}
 }
